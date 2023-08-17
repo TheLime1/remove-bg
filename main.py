@@ -1,29 +1,55 @@
 import os
-from removebg import RemoveBg
+from PIL import Image
+import requests
 
-# Your Remove.bg API key
-rmbg = RemoveBg("UefwKbdgLakSUj52rVhkZj4w", "error.log")
+# Set your API key here
+api_key = 'UefwKbdgLakSUj52rVhkZj4w'
 
-# Path of the folder containing the script
-folder_path = os.path.dirname(os.path.abspath(__file__))
+# Set the maximum supported resolution (in megapixels)
+max_resolution = 50
 
-def process_images():
-    # Get a list of files in the specified folder
-    files = os.listdir(folder_path)
+# Create the subfolder if it doesn't exist
+if not os.path.exists('bg_removed'):
+    os.makedirs('bg_removed')
 
-    for file_name in files:
-        # Check if the file is an image by checking its extension
-        if file_name.endswith(('.png', '.jpg', '.jpeg')):
-            file_path = os.path.join(folder_path, file_name)
-            print(f"Processing file: {file_name}")
+# Get a list of all image files in the current folder
+image_files = [f for f in os.listdir() if f.endswith(('.jpg', '.jpeg', '.png'))]
 
-            # Remove the background from the image
-            rmbg.remove_background_from_img_file(file_path)
+# Process each image file
+for image_file in image_files:
+    # Open the image using Pillow
+    with Image.open(image_file) as img:
+        # Calculate the current resolution (in megapixels)
+        current_resolution = (img.width * img.height) / 1_000_000
 
-            # Save the processed image to the same folder as the script
-            upload_file_path = os.path.join(folder_path, f"processed_{file_name}")
-            os.rename(f"{file_path}_no_bg.png", upload_file_path)
+        # Check if the current resolution is larger than the maximum supported resolution
+        if current_resolution > max_resolution:
+            # Calculate the scale factor to resize the image
+            scale_factor = (max_resolution / current_resolution) ** 0.5
 
+            # Calculate the new size of the image
+            new_size = (int(img.width * scale_factor), int(img.height * scale_factor))
 
-# Process all images in the specified folder
-process_images()
+            # Resize the image
+            img = img.resize(new_size)
+
+        # Save the resized image to a temporary file
+        with open('temp.jpg', 'wb') as temp:
+            img.save(temp, format='JPEG')
+
+    # Send the temporary file to the remove.bg API
+    response = requests.post(
+        'https://api.remove.bg/v1.0/removebg',
+        files={'image_file': open('temp.jpg', 'rb')},
+        data={'size': 'auto'},
+        headers={'X-Api-Key': api_key},
+    )
+    if response.status_code == requests.codes.ok:
+        # Save the processed image to the subfolder
+        with open(os.path.join('bg_removed', image_file), 'wb') as out:
+            out.write(response.content)
+    else:
+        print(f"Error processing {image_file}: {response.status_code} {response.text}")
+
+# Delete the temporary file
+os.remove('temp.jpg')
