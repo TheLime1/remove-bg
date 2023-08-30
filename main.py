@@ -17,8 +17,8 @@ rate_limit = 500
 if not os.path.exists('bg_removed'):
     os.makedirs('bg_removed')
 
-# Get a list of all image files in the current folder
-image_files = [f for f in os.listdir() if f.endswith(('.jpg', '.jpeg', '.png'))]
+# Get a list of all image files in the current folder that do not end with "_bgr"
+image_files = [f for f in os.listdir() if f.endswith(('.jpg', '.jpeg', '.png')) and not f.endswith('_bgr.jpg') and not f.endswith('_bgr.jpeg') and not f.endswith('_bgr.png')]
 
 # Initialize the rate limit counter
 rate_limit_counter = 0
