@@ -4,6 +4,7 @@
 *.jpeg
 *webp
 test_lab/
+exe/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
