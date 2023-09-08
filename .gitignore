@@ -5,6 +5,7 @@
 *webp
 test_lab/
 exe/
+web_to_png/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
