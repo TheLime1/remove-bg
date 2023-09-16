@@ -34,3 +34,9 @@ To use these scripts:
 2. Install the required dependencies mentioned in the scripts if necessary.
 3. [Set API keys](https://www.remove.bg/dashboard#api-key) and customize script parameters as needed.
 4. Run the desired script from the repository.
+
+
+
+https://github.com/TheLime1/remove-bg/assets/47940043/b8c69509-729d-4c6d-9998-061982a77055
+
+
